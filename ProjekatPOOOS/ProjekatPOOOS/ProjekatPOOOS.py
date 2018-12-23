@@ -324,10 +324,10 @@ SaPoboljsanjem = []
 SaPoboljsanjem = primjeniPoboljsanje(slike)
 plt.imshow(SaPoboljsanjem[0])
 plt.show()
-deskriptor = []
-deskriptor = primjeniDeskriptor(slike) #OVO NE RADI
-plt.imshow(deskriptor[0])
-plt.show() 
+#deskriptor = []
+#deskriptor = primjeniDeskriptor(slike) 
+#plt.imshow(deskriptor[0])
+#plt.show() 
 
 
 #slike = ucitajKropano()
