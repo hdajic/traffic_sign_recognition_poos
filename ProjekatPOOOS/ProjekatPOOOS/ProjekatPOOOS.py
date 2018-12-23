@@ -26,6 +26,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier 
 from sklearn import metrics
 from sklearn.externals import joblib
+from imageai.Detection import ObjectDetection
 
 #UCITAVA SLIKE SA DATA SETA
 
@@ -166,7 +167,7 @@ def extract_color_histogram(image, bins=(8, 8, 8)):
 	# return the flattened histogram as the feature vector)
     return hist.flatten()
 
-def readTrafficSigns2(rootpath = r"E:\ajdin\4. godina\POOS\traffic_sign_recognition_poos-master"):
+def readTrafficSigns2(rootpath = r"C:\Users\Admir\Desktop\New folder"):
     images = [] # images
     labels = [] # corresponding labels
     koordinate = []
@@ -211,6 +212,7 @@ def model(sve, treba):
 	    # extract raw pixel intensity "features", followed by a color
 	    # histogram to characterize the color distribution of the pixels
         #pixels = image_to_feature_vector(image)
+
         hist = extract_color_histogram(image)
 	    # update the raw images, features, and labels matricies,
 	    # respectively
@@ -260,27 +262,73 @@ def model(sve, treba):
     FN = matrica[1, 0] + matrica[2, 0]
     sensitivity = TP / float(FN + TP)
     print("[INFO] histogram sensitivity: {:.2f}%".format(sensitivity*100))
-
     specificity = TN / (TN + FP)
     print("[INFO] histogram specificity: {:.2f}%".format(specificity*100))
-    
     #eksportovanje modela
     filename = 'TrafficSignRec.sav'
     joblib.dump(model, filename)
 
     #loadanje modela
-    loaded_model = joblib.load(filename)
-    result = loaded_model.score(testFeat, testLabels)
-    print("[INFO ]histogram accuracy from loaded model: {:.2f}%".format(result * 100))
+    #loaded_model = joblib.load(filename)
+    #result = loaded_model.score(testFeat, testLabels)
+    #print("[INFO ]histogram accuracy from loaded model: {:.2f}%".format(result * 100))
+
+
+#PROJEKTNI ZADATAK 3
+
+def main(putanja):
+    slike = []
+    for filename in glob.glob(putanja + '/*.jpg'):
+        slike.append(plt.imread(filename))
+    return slike
+
+
+#PRIMJENJIVANJE DESKRIPTORA NA SLIKE
+def primjeniDeskriptor(slike):
+    nove = []
+    for i in range(len(slike)):
+        nove.append(extract_color_histogram(slike))
+    return nove
+
+def loadModel():
+    loaded_model = joblib.load('TrafficSignRec.sav')
+    return loaded_model
+
+def detektujZnakove(slike):
+    detect = cv2.CascadeClassifier(r"C:\Users\Admir\Desktop\New folder\ProjekatPOOOS\ProjekatPOOOS\myhaar.xml")
+    temp = slike
+    for i in range(len(slike)):
+        image = temp[i]
+        detections = []
+        znakovi = detect.detectMultiScale(image)
+        for (x,y,w,h) in znakovi:
+            regiaznaka = image[y:y+h, x:x+w]
+            cv2.rectangle(image, (x,y), (x+w, y+h), (0,255,0), 2)
+        plt.imshow(image)
+        plt.show()
+
+#PRIMJENJIVANJE POBOLJŠANJA NAD SLIKAMA
+def primjeniPoboljsanje(slike):
+    nove = []
+    for i in range(len(slike)):
+        nove.append(ukloniSum(slike[i]))
+    return nove
 
 
 
-  
-  
+#slike,labels,koordinate = readTrafficSigns2()
+#model(slike, labels)
+slike = main(r"C:\Users\Admir\Desktop\New folder\Data for testing")
+#detektujZnakove(slike)
+SaPoboljsanjem = []
+SaPoboljsanjem = primjeniPoboljsanje(slike)
+plt.imshow(SaPoboljsanjem[0])
+plt.show()
+deskriptor = []
+deskriptor = primjeniDeskriptor(slike) #OVO NE RADI
+plt.imshow(deskriptor[0])
+plt.show() 
 
-
-slike,labels,koordinate = readTrafficSigns2()
-model(slike, labels)
 
 #slike = ucitajKropano()
 #DeskriptorHOG(slike)
